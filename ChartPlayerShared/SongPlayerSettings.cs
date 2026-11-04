@@ -31,6 +31,8 @@ namespace ChartPlayer
         public ESongTuningMode SongTuningMode { get; set; } = ESongTuningMode.A440;
         public bool BassUsingGuitar { get; set; } = false;
         public float NoteDisplaySeconds { get; set; } = 3;
+        public bool ShowTab { get; set; } = false;
+        public float TabDisplaySeconds { get; set; } = 6;
         public float DrumsNoteDisplaySeconds { get; set; } = 3;
         public float KeysNoteDisplaySeconds { get; set; } = 3;
         public ESongInstrumentType CurrentInstrument { get; set; } = ESongInstrumentType.LeadGuitar;
@@ -114,6 +116,7 @@ namespace ChartPlayer
             vStack.Children.Add(CreateEnumOption("SongTuningMode", newSettings, "Song Re-Tuning"));
             vStack.Children.Add(CreateTextToggleOption("BassUsingGuitar", newSettings, "Play bass using a guitar: ", "Yes", "No"));
             vStack.Children.Add(CreateFloatOption("NoteDisplaySeconds", newSettings, "Note Display Length (secs):", 1, 5, 1));
+            vStack.Children.Add(CreateFloatOption("TabDisplaySeconds", newSettings, "Tab Display Length (secs):", 2, 15, 1));
 
             return vStack;
         }

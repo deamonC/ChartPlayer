@@ -35,6 +35,8 @@ namespace ChartPlayer
 
         SongData songData;
         VocalDisplay vocalText;
+        TabDisplay tabDisplay;
+        TextToggleButton tabButton;
 
         TextBlock songNameText;
         TextBlock songArtistText;
@@ -168,6 +170,14 @@ namespace ChartPlayer
             };
             topStack.Children.Add(vocalText);
 
+            tabDisplay = new TabDisplay()
+            {
+                HorizontalAlignment = EHorizontalAlignment.Stretch,
+                Margin = new LayoutPadding(20, 5),
+                Visible = false
+            };
+            topStack.Children.Add(tabDisplay);
+
             VerticalStack bottomVstack = new VerticalStack()
             {
                 HorizontalAlignment = EHorizontalAlignment.Stretch,
@@ -296,6 +306,14 @@ namespace ChartPlayer
                 ClickAction = ToggleNotes
             };
             leftButtonStack.Children.Add(hideNotesButton);
+
+            tabButton = new TextToggleButton("Tab", "Tab")
+            {
+                VerticalAlignment = EVerticalAlignment.Stretch,
+                ClickAction = ToggleTab
+            };
+            tabButton.SetPressed(ChartPlayerGame.Instance.Plugin.ChartPlayerSaveState.SongPlayerSettings.ShowTab);
+            leftButtonStack.Children.Add(tabButton);
 
             leftButtonStack.Children.Add(tunerButton = new TextButton("Tuner")
             {
@@ -498,6 +516,27 @@ namespace ChartPlayer
             ChartPlayerGame.Instance.Plugin.GameHost.IsMouseVisible = true;
 
             Layout.Current.ShowPopup(songList);
+        }
+
+        void ToggleTab()
+        {
+            ChartPlayerGame.Instance.Plugin.ChartPlayerSaveState.SongPlayerSettings.ShowTab = tabButton.IsPressed;
+
+            UpdateTabDisplay();
+        }
+
+        void UpdateTabDisplay()
+        {
+            SongPlayerSettings settings = ChartPlayerGame.Instance.Plugin.ChartPlayerSaveState.SongPlayerSettings;
+
+            bool isFretted = (songPlayer != null) && (ChartPlayerGame.Instance.Scene3D is FretPlayerScene3D);
+
+            tabDisplay.SongPlayer = isFretted ? songPlayer : null;
+            tabDisplay.NumStrings = (isFretted && (songPlayer.SongInstrumentPart.InstrumentType == ESongInstrumentType.BassGuitar)) ? 4 : 6;
+            tabDisplay.DisplaySeconds = settings.TabDisplaySeconds;
+            tabDisplay.Visible = isFretted && settings.ShowTab;
+
+            UpdateContentLayout();
         }
 
         void ToggleNotes()
@@ -738,7 +777,7 @@ namespace ChartPlayer
 
                 songLengthText.Text = ((int)(songPlayer.SongLengthSeconds / 60)).ToString() + ":" + (songPlayer.SongLengthSeconds % 60).ToString("00");
 
-                UpdateContentLayout();
+                UpdateTabDisplay();
 
                 GC.Collect();
             }
@@ -930,6 +969,9 @@ namespace ChartPlayer
 
                 songList.SetSongIndex(songIndex);
             }
+
+            tabButton.SetPressed(settings.ShowTab);
+            UpdateTabDisplay();
 
             ChartPlayerGame.Instance.Scale = settings.UIScale;
             Layout.Current.UpdateLayout();
